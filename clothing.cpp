@@ -24,7 +24,7 @@ set<std::string> Clothing::keywords() const{
 }
 string Clothing::displayString() const{
   string outputString = "";
-  outputString += category_ + " " + name_ + " " + to_string(price_) + " " + to_string(qty_) + " " + size_ + " " + brand_;
+  outputString += name_ + "\nSize: " + size_ + " Brand: " + brand_ + "\n" + to_string(price_) + " " + to_string(qty_) + " left.";
   return outputString;
 }
 

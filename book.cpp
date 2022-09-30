@@ -25,7 +25,7 @@ set<std::string> Book::keywords() const{
 }
 string Book::displayString() const{
   string outputString = "";
-  outputString += category_ + " " + name_ + " " + to_string(price_) + " " + to_string(qty_) + " " + isbn_ + " " + author_;
+  outputString += name_ + "\nAuthor: " + author_ + " ISBN: " + isbn_ + "\n" + to_string(price_) + " " + to_string(qty_) + " left.";
   return outputString;
 }
 

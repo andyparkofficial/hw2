@@ -5,10 +5,14 @@
 #include <vector>
 #include <iomanip>
 #include <algorithm>
+#include <map>
 #include "product.h"
 #include "db_parser.h"
 #include "product_parser.h"
 #include "util.h"
+#include "mydatastore.h"
+#include "user.h"
+
 
 using namespace std;
 struct ProdNameSorter {
@@ -29,7 +33,7 @@ int main(int argc, char* argv[])
      * Declare your derived DataStore object here replacing
      *  DataStore type to your derived type
      ****************/
-    DataStore ds;
+    MyDataStore ds;
 
 
 
@@ -62,6 +66,12 @@ int main(int argc, char* argv[])
     cout << "====================================" << endl;
 
     vector<Product*> hits;
+    map<string, vector<Product*>> cart;
+    map<string, User*> usernameToUser;
+    for (set<User*>::iterator it = ds.users_.begin(); it != ds.users_.end(); ++it){
+        string username = convToLower((*it)->getName()); //make it lowercase 
+        usernameToUser[username]= *it;
+    }
     bool done = false;
     while(!done) {
         cout << "\nEnter command: " << endl;
@@ -100,6 +110,74 @@ int main(int argc, char* argv[])
                 done = true;
             }
 	    /* Add support for other commands here */
+            else if ( cmd == "ADD") {
+              unsigned int hit_result_index;
+              Product* addedItem;
+              string username;
+              ss >> username;
+              username = convToLower(username);
+              if(usernameToUser.find(username) == usernameToUser.end() ){ //if user does not exist
+                cout << "Invalid request" << endl;
+                continue;
+              }
+              else if(ss >> hit_result_index) {
+                if (hit_result_index <= hits.size()){ //if index exists
+                  addedItem = hits[hit_result_index-1]; 
+
+                  if(cart.find(username) != cart.end() ){ //if user already has items
+                    cart[username].push_back(addedItem);
+                  } else {
+                    vector<Product*> addedItems;
+                    addedItems.push_back(addedItem);
+                    cart[username].push_back(addedItem);
+                  }
+
+                } else {
+                  cout << "Invalid request" << endl;
+                  continue;
+                }
+              }
+              else {
+                cout << "Invalid request" << endl;
+                continue;
+              }
+              
+              
+            }
+            else if ( cmd == "VIEWCART") {
+                string username;
+                if (ss >> username){
+                  username = convToLower(username);
+                    if(cart.find(username) != cart.end() ){ // if username exists
+                        int counter = 1;
+                        for (vector<Product*>::iterator it = cart[username].begin(); it != cart[username].end(); ++it){
+                            cout << counter << ": " << (*it)->getName() << endl;
+                            counter++;
+                        }   
+                    } else {
+                    cout << "Invalid username" << endl;
+                    }  
+                } 
+            }
+            else if ( cmd == "BUYCART"){
+                string username;
+                if (ss >> username){
+                  username = convToLower(username);
+                    if(cart.find(username) != cart.end() ){ // if username exists in cart
+
+                        for (vector<Product*>::iterator it = cart[username].begin(); it != cart[username].end(); ++it){
+                            if ((usernameToUser[username])->getBalance() >= (*it)->getPrice()){ // user has enough money
+                                if ((*it)->getQty() > 0){ //there is at least one of the product
+                                    (*it)->subtractQty(1);
+                                    (usernameToUser[username])->deductAmount((*it)->getPrice());
+                                }
+                            }
+                        }   
+                    } else {
+                    cout << "Invalid username" << endl;
+                    }  
+                } 
+            }
 
 
 

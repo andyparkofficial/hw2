@@ -15,7 +15,7 @@
  */
 class SectionParser {
 public:
-    virtual ~SectionParser() { }
+    virtual ~SectionParser() { } 
     /**
      * Parses the section stored in the given istream
      * Increments lineno after successfully parsing each lineno
