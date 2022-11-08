@@ -14,7 +14,7 @@ set<std::string> Movie::keywords() const{
 
   set<string> preUnionedSets[2];
   preUnionedSets[0] = parseStringToWords(name_);
-  preUnionedSets[1].insert(genre_);
+  preUnionedSets[1] = parseStringToWords(genre_);
 
   for (int i = 0; i < 2; i++){
     keyWords = setUnion(keyWords, preUnionedSets[i]);

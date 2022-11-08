@@ -17,26 +17,29 @@ std::string convToLower(std::string src)
 std::set<std::string> parseStringToWords(string rawWords)
 {
   std::set<std::string> keyWords;
-  std::string tempWord = "";
+
+  string tempWord;
+  
 
   for (unsigned int i = 0; i < rawWords.length(); i++){
-    if (ispunct(rawWords[i]) || isspace(rawWords[i]) || i == rawWords.length()-1) {
-        if (tempWord.length()>1){
-            if (i == rawWords.length()-1){
-                tempWord += rawWords[i];
-            }
-            keyWords.insert(tempWord);
-            tempWord = "";
-        } else {
-            tempWord = "";
-        }
+    char yeet;
+    if(isupper(rawWords[i])){ 
+        yeet = tolower(rawWords[i]);
     } else {
-        if(isupper(rawWords[i])){
-            tempWord += tolower(rawWords[i]);
-        } else{
-            tempWord += rawWords[i];
+        yeet = rawWords[i];
+    }
+    if (ispunct(rawWords[i]) || isspace(rawWords[i]) || i == rawWords.length()-1) { //index is punctuation or white space or the end 
+        if (i == rawWords.length()-1 && !(ispunct(rawWords[i]) || isspace(rawWords[i]) )){ // if it is the end and it is a character
+          tempWord += yeet;
         }
-        
+        if (tempWord.length() > 1){ // tempWord is two or more characters
+          keyWords.insert(tempWord);
+          tempWord = "";
+        } else { // tempWord is less than two or more characters
+          tempWord = "";
+        }
+    } else { // if it is not punctuation or whitespace
+      tempWord += yeet;
     }
   }
 

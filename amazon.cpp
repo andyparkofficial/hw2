@@ -53,6 +53,8 @@ int main(int argc, char* argv[])
     if( parser.parse(argv[1], ds) ) {
         cerr << "Error parsing!" << endl;
         return 1;
+    } else {
+      
     }
 
     cout << "=====================================" << endl;
@@ -71,6 +73,8 @@ int main(int argc, char* argv[])
     for (set<User*>::iterator it = ds.users_.begin(); it != ds.users_.end(); ++it){
         string username = convToLower((*it)->getName()); //make it lowercase 
         usernameToUser[username]= *it;
+        vector<Product*> yeet;
+        cart[username] = yeet;
     }
     bool done = false;
     while(!done) {
@@ -103,10 +107,10 @@ int main(int argc, char* argv[])
             else if ( cmd == "QUIT") {
                 string filename;
                 if(ss >> filename) {
-                    ofstream ofile(filename.c_str());
+                    ofstream ofile(filename);
                     ds.dump(ofile);
                     ofile.close();
-                }
+                } 
                 done = true;
             }
 	    /* Add support for other commands here */
@@ -126,11 +130,12 @@ int main(int argc, char* argv[])
 
                   if(cart.find(username) != cart.end() ){ //if user already has items
                     cart[username].push_back(addedItem);
-                  } else {
-                    vector<Product*> addedItems;
-                    addedItems.push_back(addedItem);
-                    cart[username].push_back(addedItem);
                   }
+                  // } else { // if user does not have items
+                  //   vector<Product*> addedItems;
+                  //   addedItems.push_back(addedItem);
+                  //   cart[username] = addedItems;
+                  // }
 
                 } else {
                   cout << "Invalid request" << endl;
@@ -151,7 +156,7 @@ int main(int argc, char* argv[])
                     if(cart.find(username) != cart.end() ){ // if username exists
                         int counter = 1;
                         for (vector<Product*>::iterator it = cart[username].begin(); it != cart[username].end(); ++it){
-                            cout << counter << ": " << (*it)->getName() << endl;
+                            cout << "Item " << counter << "\n" << (*it)->displayString() << endl;
                             counter++;
                         }   
                     } else {
@@ -164,15 +169,22 @@ int main(int argc, char* argv[])
                 if (ss >> username){
                   username = convToLower(username);
                     if(cart.find(username) != cart.end() ){ // if username exists in cart
-
-                        for (vector<Product*>::iterator it = cart[username].begin(); it != cart[username].end(); ++it){
-                            if ((usernameToUser[username])->getBalance() >= (*it)->getPrice()){ // user has enough money
-                                if ((*it)->getQty() > 0){ //there is at least one of the product
-                                    (*it)->subtractQty(1);
-                                    (usernameToUser[username])->deductAmount((*it)->getPrice());
-                                }
-                            }
-                        }   
+                      vector<int> deletedIndexes;
+                      int index = 0;
+                      for (vector<Product*>::iterator it = cart[username].begin(); it != cart[username].end(); ++it){
+                          if (((usernameToUser[username])->getBalance() >= (*it)->getPrice()) && ((*it)->getQty() > 0)){ // user has enough money and there is at least one of the product
+                              
+                              (*it)->subtractQty(1);
+                              (usernameToUser[username])->deductAmount((*it)->getPrice());
+                              deletedIndexes.push_back(index);
+                          }
+                          index++;
+                      }
+                      int offset = 0; //offset is necessary as the items get deleted, the index that needs to be deleted changes
+                      for (vector<int>::iterator it = deletedIndexes.begin(); it != deletedIndexes.end(); ++it){
+                        cart[username].erase(cart[username].begin()+(*it)-offset); // erase the item that has been deleted
+                        offset++;
+                      }
                     } else {
                     cout << "Invalid username" << endl;
                     }  
@@ -200,7 +212,7 @@ void displayProducts(vector<Product*>& hits)
     }
     std::sort(hits.begin(), hits.end(), ProdNameSorter());
     for(vector<Product*>::iterator it = hits.begin(); it != hits.end(); ++it) {
-        cout << "Hit " << setw(3) << resultNo << endl;
+        cout << "Hit   " << setw(3) << resultNo << endl;
         cout << (*it)->displayString() << endl;
         cout << endl;
         resultNo++;

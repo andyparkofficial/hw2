@@ -3,6 +3,21 @@
 #include "mydatastore.h"
 using namespace std;
 
+MyDataStore::MyDataStore() {
+  
+}
+
+MyDataStore::~MyDataStore() {
+  std::set<Product*>::iterator it;
+  for (it = products_.begin(); it != products_.end(); ++it){
+    delete *it;
+  }
+  std::set<User*>::iterator it2;
+  for (it2 = users_.begin(); it2 != users_.end(); ++it2){
+    delete *it2;
+  }
+}
+
 void MyDataStore::addProduct(Product* p){
   products_.insert(p);
   set<string> keyWords = p->keywords();
@@ -19,6 +34,7 @@ void MyDataStore::addProduct(Product* p){
 
 void MyDataStore::addUser(User* u){
   users_.insert(u);
+  
 }
   
 vector<Product*> MyDataStore::search(vector<string>& terms, int type){
